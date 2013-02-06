@@ -150,7 +150,6 @@ int main(){
     displayArray( numbers , num );
 
     getchar();
-    getchar();
 
     return 0;
 }
