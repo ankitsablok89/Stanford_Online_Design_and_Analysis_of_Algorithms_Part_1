@@ -50,6 +50,9 @@ typedef unsigned long long ULL;
 // this variable is used as a sentinel card
 const double sentinel = 1e+7;
 
+// this variable is used for storing the size of the array for which to count the inversions
+const int size = 100000 ;
+
 // this function is used to display the array elements at any point of time, *numbers - represents the array of numbers and the size represents
 // the size of the array
 void displayArray(double *numbers , int size){
@@ -57,13 +60,13 @@ void displayArray(double *numbers , int size){
      cout << "The elements of the array are as follows -: " << endl;
 
      for(int i = 0 ; i < size ; ++i)
-             cout << numbers[ i ] << " ";
+             cout << numbers[ i ] << endl;
 
      cout << endl;
 }
 
 // this function is used to perform the merge operation which is used to merge the 2 sorted subarrays
-int doMerge( double *numbers , int startIndex , int midIndex , int endIndex ){
+LL doMerge( double *numbers , int startIndex , int midIndex , int endIndex ){
 
     // as the merge procedure relies on auxiliary arrays we first need to evaluate the size of these auxiliary arrays
     int numbersOneSize = midIndex - startIndex + 1;
@@ -86,6 +89,9 @@ int doMerge( double *numbers , int startIndex , int midIndex , int endIndex ){
     // pointers used in traversing the two sorted subarrays
     int i = 0 , j = 0 ;
 
+    // this variable is used to calculate the number of inversions
+    LL splitInversions = 0;
+
     for(int k = startIndex ; k <= endIndex ; ++k){
 
             if( left[ i ] <= right[ j ] ){
@@ -96,12 +102,15 @@ int doMerge( double *numbers , int startIndex , int midIndex , int endIndex ){
             else{
                  numbers[ k ] = right[ j ];
                  ++j;
+                 splitInversions += (numbersOneSize - i);
             }
     }
+
+    return splitInversions;
 }
 
 // this function is used to execute the MergeSort algorithm
-int doMergeSort( double *numbers , int startIndex , int endIndex ){
+LL countInversions( double *numbers , int startIndex , int endIndex ){
 
     // we only sort the numbers when the starting index is less than or equal to ending index
     if( startIndex < endIndex ){
@@ -109,12 +118,16 @@ int doMergeSort( double *numbers , int startIndex , int endIndex ){
         // this variable is used to calculate the mid-point of the array
         int midIndex = ( startIndex + endIndex )/2;
 
-        // these 2 calls are the recursive calls in the merge sort algorithm
-        doMergeSort( numbers , startIndex , midIndex );
-        doMergeSort( numbers , midIndex + 1 , endIndex);
+        // these 2 calls correspond to the recursive calls in the merge sort algorithm and help us in calculating the respective left and right
+        // inversions in the array
+        LL leftInversions = countInversions( numbers , startIndex , midIndex );
+        LL rightInversions = countInversions( numbers , midIndex + 1 , endIndex);
 
-        // this call to doMerge actually arranges the 2 sorted subarrays into a single sorted array
-        doMerge( numbers , startIndex , midIndex , endIndex );
+        // this call to doMerge actually arranges the 2 sorted subarrays into a single sorted array and also helps us in calculating the number
+        // of split inversions
+        LL splitInversions = doMerge( numbers , startIndex , midIndex , endIndex );
+
+        return leftInversions + rightInversions + splitInversions;
     }
 
     return 0;
@@ -122,32 +135,30 @@ int doMergeSort( double *numbers , int startIndex , int endIndex ){
 
 int main(){
 
-    // this variable stores the number of numbers we will have in our array to sort
-    int num;
+    // this file is used to scan the input test cases
+    freopen("/home/ankit/Desktop/Coursera Courses/Design and Analysis of Algorithms - Part 1/Programming Assignment 1/IntegerArray.txt" , "rb" , stdin);
 
-    cout << "Please enter the size of the array that you want to sort : ";
-    cin >> num;
+    // this file is used for dumping the answer
+    freopen("/home/ankit/Desktop/Coursera Courses/Design and Analysis of Algorithms - Part 1/Programming Assignment 1/IntegerArrayAnswer.txt" , "wb" , stdout);
 
     // this is the array that is used to store the numbers to be sorted, for the sake of simplicity we assume the numbers to be of type "double"
-    double numbers[ num ];
+    double numbers[ size ];
 
-    // enter the numbers that constitute the array
-    cout << "\nPlease start entering the numbers that constitute the array!!!" << endl;
-
-    for(int i = 0 ; i < num ; ++i){
-            cout << "Please enter element number " << i+1 << " : ";
+    // scan the numbers from the file and store them into an array
+    for(int i = 0 ; i < size ; ++i)
             cin >> numbers[ i ];
-    }
 
     // display the array entered by the user
-    displayArray( numbers , num );
+    displayArray( numbers , size );
 
     // call the merge sort procedure to sort the array
-    doMergeSort( numbers , 0 , num - 1 );
+    LL inversions = countInversions( numbers , 0 , size - 1 );
 
     cout << "After Sorting ";
     // after calling merge sort display the array in sorted order
-    displayArray( numbers , num );
+    displayArray( numbers , size );
+
+    cout << "\nThe total number of inversions is : " << inversions << endl;
 
     return 0;
 }
