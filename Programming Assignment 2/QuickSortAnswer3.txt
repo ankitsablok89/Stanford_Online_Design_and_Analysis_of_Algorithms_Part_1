@@ -1,0 +1,1 @@
+The number of comparisons are using the first element as pivot is : 138382
